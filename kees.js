@@ -6,9 +6,9 @@ var Kees = (function() {
     document.addEventListener('keyup', keyUpHandler, false);
     document.addEventListener('keydown', keyDownHandler, false);
 
-	function add(def, handler, evt) {
-		if(!def) return false;
-		var mode = evt || 'down';
+    function add(def, handler, evt) {
+        if(!def) return false;
+        var mode = evt || 'down';
         shortcuts.push({ def: def, keys: getKeys(def), cb: handler, mode: mode });
     }
     
@@ -20,8 +20,8 @@ var Kees = (function() {
 
     function getKeys(def) {
         var chnk = (def || '').split('+'),
-	        keys = [];
-	        
+            keys = [];
+            
         for(var i = 0, l = chnk.length; i < l; i++) {
             keys.push(chnk[i] in ctrls ? ctrls[chnk[i]] : chnk[i].toUpperCase().charCodeAt());
         }
@@ -30,8 +30,8 @@ var Kees = (function() {
 
     function keyDownHandler(e) {
         if(!~pressed.indexOf(e.keyCode)) {
-	        pressed.push(e.keyCode);
-	    }
+            pressed.push(e.keyCode);
+        }
         pressed.sort();
         checkShortcuts(e, 'down');
     }
