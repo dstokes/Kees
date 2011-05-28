@@ -1,19 +1,15 @@
-/**
-* TODOS
-* Add keyup option
-* 5/24
-*/
 var Kees = (function() {
     var shortcuts = [],
         pressed = [],
         ctrls = {'shift':16,'ctrl':17,'alt':18,'backspace':8,'tab':9,'enter':13,'pause':19,'capslock':20,'esc':27,'space':32,'pageup':33,'pagedown':34,'end':35,'home':36,'left':37,'up':38,'right':39,'down':40,'insert':45,'delete':46,'?':191};
 
-    //Setup observers
     document.addEventListener('keyup', keyUpHandler, false);
     document.addEventListener('keydown', keyDownHandler, false);
 
-	function add(def, handler) {
-        shortcuts.push({ def: def, keys: getKeys(def), cb: handler });
+	function add(def, handler, evt) {
+		if(!def) return false;
+		var mode = evt || 'down';
+        shortcuts.push({ def: def, keys: getKeys(def), cb: handler, mode: mode });
     }
     
     function remove(def) {
@@ -22,39 +18,34 @@ var Kees = (function() {
         shortcuts = p;
     }
 
-	//Parse shortcut definition for keycodes
     function getKeys(def) {
-        var str = (def || '').split('+');
-        for(var i = 0, keys = [], l = str.length; i < l; i++) {
-	        //Get keycode from `ctrls` or  w/ charCodeAt
-            var code = str[i] in ctrls ? ctrls[str[i]] : str[i].toUpperCase().charCodeAt();
-            keys.push(code);
+        var chnk = (def || '').split('+'),
+	        keys = [];
+	        
+        for(var i = 0, l = chnk.length; i < l; i++) {
+            keys.push(chnk[i] in ctrls ? ctrls[chnk[i]] : chnk[i].toUpperCase().charCodeAt());
         }
-        
-        //Sort for later arr comparison
         return keys.sort();
     }
 
-
     function keyDownHandler(e) {
-	    //If the key isnt in the pressed array, add it
-        if(!~pressed.indexOf(e.keyCode))
-            pressed.push(e.keyCode);
+        if(!~pressed.indexOf(e.keyCode)) {
+	        pressed.push(e.keyCode);
+	    }
         pressed.sort();
-        checkShortcuts(e);
+        checkShortcuts(e, 'down');
     }
 
     function keyUpHandler(e) {
+        checkShortcuts(e, 'up');
         for(var i = 0, p = [], l = pressed.length; i < l; i++)
             if(pressed[i] != e.keyCode) p.push(pressed[i]);
         pressed = p;
     }
     
-    function checkShortcuts(e) {
-	    //Check / execute shortcuts matching pressed arr
+    function checkShortcuts(e, mode) {
         for(var i = 0, l = shortcuts.length; i < l; i++) {
-            var keys = shortcuts[i].keys;
-            if(arraysEqual(keys, pressed)) {
+            if(arraysEqual(shortcuts[i].keys, pressed) && shortcuts[i].mode == mode) {
                 e.preventDefault();
                 shortcuts[i].cb();
             }
@@ -68,3 +59,6 @@ var Kees = (function() {
     return { add: add, remove: remove };
 
 })();
+
+Kees.add('ctrl+a', function() { console.log('ctrl+a'); }, 'up');
+Kees.add('a+b+c', function() { console.log('abc'); }, 'up');
