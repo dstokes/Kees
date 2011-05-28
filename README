@@ -1,2 +1,6 @@
 Compact keyboard shortcut module.
 Supports basic keyup / keydown / hold functionality.
+
+Basic usage:
+Kees.add('ctrl+a', callback, 'down');
+Kees.remove('ctrl+b', 'up');
